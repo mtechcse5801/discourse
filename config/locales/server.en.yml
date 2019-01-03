@@ -4295,3 +4295,10 @@ en:
     unknown: "unknown"
     user_merged: "%{username} was merged into this account"
     user_delete_self: "Deleted by self from %{url}"
+
+  reviewables:
+    actions:
+      approve:
+        title: "Approve"
+      reject:
+        title: "Reject"

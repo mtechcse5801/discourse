@@ -89,12 +89,12 @@ describe UserDestroyer do
       end
     end
 
-    context "with a queued post" do
-      let!(:qp) { Fabricate(:queued_post, user: user) }
+    context "with a reviewable post" do
+      let!(:reviewable) { Fabricate(:reviewable, created_by: user) }
 
       it "removes the queued post" do
         UserDestroyer.new(admin).destroy(user)
-        expect(QueuedPost.where(user_id: user.id).count).to eq(0)
+        expect(Reviewable.where(created_by_id: user.id).count).to eq(0)
       end
     end
 

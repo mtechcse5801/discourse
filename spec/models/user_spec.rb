@@ -173,7 +173,7 @@ describe User do
       @post3 = Fabricate(:post, user: @user)
       @posts = [@post1, @post2, @post3]
       @guardian = Guardian.new(Fabricate(:admin))
-      @queued_post = Fabricate(:queued_post, user: @user)
+      Fabricate(:reviewable_queued_post, created_by: @user)
     end
 
     it 'deletes only one batch of posts' do
@@ -186,7 +186,7 @@ describe User do
     it 'correctly deletes posts and topics' do
       @user.delete_posts_in_batches(@guardian, 20)
       expect(Post.where(id: @posts.map(&:id))).to be_empty
-      expect(QueuedPost.where(user_id: @user.id).count).to eq(0)
+      expect(Reviewable.where(created_by: @user).count).to eq(0)
       @posts.each do |p|
         if p.is_first_post?
           expect(Topic.find_by(id: p.topic_id)).to be_nil

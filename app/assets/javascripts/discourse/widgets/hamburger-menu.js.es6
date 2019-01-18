@@ -70,18 +70,10 @@ export default createWidget("hamburger-menu", {
     links.push({
       route: "review",
       className: "review",
-      label: "review.title"
+      label: "review.title",
+      badgeCount: "reviewable_count",
+      badgeClass: "reviewables"
     });
-
-    if (currentUser.show_queued_posts) {
-      links.push({
-        route: "queued-posts",
-        className: "queued-posts-link",
-        label: "queue.title",
-        badgeCount: "post_queue_new_count",
-        badgeClass: "queued-posts"
-      });
-    }
 
     if (currentUser.admin) {
       links.push({

@@ -193,8 +193,6 @@ export default function() {
     this.route("show", { path: "/:id/:slug" });
   });
 
-  this.route("queued-posts", { path: "/queued-posts", resetNamespace: true });
-
   this.route("full-page-search", { path: "/search" });
 
   this.route("tags", { resetNamespace: true }, function() {

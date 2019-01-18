@@ -439,17 +439,13 @@ describe UserMerger do
     end
   end
 
-  it "updates queued posts" do
-    topic = Fabricate(:topic)
-    post1 = Fabricate(:queued_post, topic: topic, user: source_user)
-    post2 = Fabricate(:queued_post, topic: topic, approved_by: source_user)
-    post3 = Fabricate(:queued_post, topic: topic, rejected_by: source_user)
+  it "updates reviewables and reviewable history" do
+    reviewable = Fabricate(:reviewable_queued_post, created_by: source_user)
 
     merge_users!
 
-    expect(post1.reload.user).to eq(target_user)
-    expect(post2.reload.approved_by).to eq(target_user)
-    expect(post3.reload.rejected_by).to eq(target_user)
+    expect(reviewable.reload.created_by).to eq(target_user)
+    expect(reviewable.reviewable_histories.first.created_by).to eq(target_user)
   end
 
   describe 'search logs' do
@@ -657,14 +653,6 @@ describe UserMerger do
     let(:post2) { Fabricate(:post) }
     let(:post3) { Fabricate(:post) }
 
-    def log_pending_action(user, post)
-      UserAction.log_action!(action_type: UserAction::PENDING,
-                             user_id: user.id,
-                             acting_user_id: user.id,
-                             target_topic_id: post.topic.id,
-                             queued_post_id: post.id)
-    end
-
     def log_like_action(acting_user, user, post)
       UserAction.log_action!(action_type: UserAction::LIKE,
                              user_id: user.id,
@@ -679,22 +667,6 @@ describe UserMerger do
                              acting_user_id: acting_user.id,
                              target_topic_id: topic.id,
                              target_post_id: -1)
-    end
-
-    it "merges when target_post_id is not set" do
-      a1 = log_pending_action(source_user, post1)
-      _a2 = log_pending_action(source_user, post2)
-      a3 = log_pending_action(target_user, post2)
-      a4 = log_pending_action(target_user, post3)
-
-      merge_users!
-
-      expect(UserAction.count).to eq(3)
-
-      action_ids = UserAction.where(action_type: UserAction::PENDING,
-                                    user_id: target_user.id,
-                                    acting_user_id: target_user.id).pluck(:id)
-      expect(action_ids).to contain_exactly(a1.id, a3.id, a4.id)
     end
 
     it "merges when target_post_id is set" do
